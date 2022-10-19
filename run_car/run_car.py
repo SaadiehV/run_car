@@ -4,51 +4,69 @@ import sys
 
 pygame.init()
 pygame.font.init()
+
+def load_asset(asset_name):
+    return pygame.image.load(asset_name).convert_alpha()
+
+def scale_asset(asset_name, x, y):
+    return pygame.transform.scale(asset_name, (x, y))
+
+def rotate_asset(asset_name, angle):
+    return pygame.transform.rotate(asset_name, angle)
+
 height = 900
-screen = pygame.display.set_mode((800,height))
-bg_img = pygame.image.load("assets/bg_image.png").convert_alpha()
-bg = pygame.transform.scale(bg_img, (800,height))
-y = 0
-x = 350
-y_car = 750
-
-
 #Laddar in alla assets, skapar äver roterade versioner av vissa assets för att få "svängbilder"
-car_straight = pygame.image.load("assets/car_straight.pcx").convert_alpha()
-car_straight = pygame.transform.scale(car_straight, (55, 110))
-car_left = pygame.transform.rotate(car_straight, 30)
-car_right = pygame.transform.rotate(car_straight, -30)
-broken_straight = pygame.image.load("assets/broken_straight.pcx").convert_alpha()
-broken_left = pygame.transform.rotate(broken_straight, 30)
-broken_right = pygame.transform.rotate(broken_straight, -30)
-logo = pygame.image.load("assets/logo.png").convert_alpha()
-start_game = pygame.image.load("assets/start_game.png").convert_alpha()
-start_game_hover = pygame.image.load("assets/start_game_hover.png").convert_alpha()
-quit_logo = pygame.image.load("assets/quit.png").convert_alpha()
-quit_hover = pygame.image.load("assets/quit_hover.png").convert_alpha()
-score_pic = pygame.image.load("assets/score.png").convert_alpha()
-score_pic = pygame.transform.scale(score_pic, (130, 40))
+screen = pygame.display.set_mode((800,height))
+bg_img = load_asset("assets/bg_image.png")
+bg = scale_asset(bg_img, 800, height)
 
-#Hämtar koordina av bilder för att enklare centrera.
+car_straight = load_asset("assets/car_straight.pcx")
+car_straight = scale_asset(car_straight, 55, 110)
+car_left = rotate_asset(car_straight, 30)
+car_right = rotate_asset(car_straight, -30)
 
+broken_straight = load_asset("assets/broken_straight.pcx")
+broken_left = rotate_asset(broken_straight, 30)
+broken_right = rotate_asset(broken_straight, -30)
+
+logo = load_asset("assets/logo.png")
+
+start_game = load_asset("assets/start_game.png")
+start_game_hover = load_asset("assets/start_game_hover.png")
+
+quit_logo = load_asset("assets/quit.png")
+quit_hover = load_asset("assets/quit_hover.png")
+
+score_pic = load_asset("assets/score.png")
+score_pic = scale_asset(score_pic, 130, 40)
+
+#Hämtar koordinat av bilders mittpunkt för att enklare centrera.
 logo_center = logo.get_rect(center=(400,150))
 start_game_center = start_game.get_rect(center=(400,400))
 quit_center = quit_logo.get_rect(center=(400,550))
 
-
+y = 0
+x = 350
+y_car = 750
+car = car_straight
 score = 0
 speed = 1
 quit_button = quit_logo
 start = start_game
 start_screen = True
 running = False
-spunk = pygame.font.Font("assets/font.ttf", 30)
-while start_screen:  
+font = pygame.font.Font("assets/font.ttf", 30)
+
+def draw_bg():
+    global y
     if y >= height:
         y = 0
     screen.fill((0,0,0))
     screen.blit(bg, (0 , y))
     screen.blit(bg, (0 , -height+y))
+
+def draw_ss():
+    global y
     screen.blit(logo, logo_center)
     screen.blit(start, start_game_center)
     screen.blit(quit_button, quit_center)
@@ -56,7 +74,21 @@ while start_screen:
     y += speed
     pygame.display.flip()
 
+def draw_game():
+    global y
+    global score
+    screen.blit(car, (x,y_car))
+    screen.blit(score_pic, (0, 860))
+    y += speed
+    score_text = font.render(str(int(score)), True, (255,255,255))
+    score += 0.1
+    screen.blit(score_text, (140, 860))
 
+def ss_buttons():
+    global start
+    global quit_button
+    global start_screen
+    global running
     for event in pygame.event.get():
         mouse = pygame.mouse.get_pos()
         if pygame.Rect.collidepoint(start_game_center, mouse):
@@ -79,21 +111,11 @@ while start_screen:
                 sys.exit(0)
                 running = False
 
-car = car_straight
-while running:
-    if y >= height:
-        y = 0
-    screen.fill((0,0,0))
-    screen.blit(bg, (0 , y))
-    screen.blit(bg, (0 , -height+y))
-    screen.blit(car, (x,y_car))
-    screen.blit(score_pic, (0, 860))
-    y += speed
-    score_text = spunk.render(str(int(score)), True, (255,255,255))
-    score += 0.1
-    screen.blit(score_text, (140, 860))
+def controls():
+    global car
+    global x
+    global y_car
     keys = pygame.key.get_pressed()
-
     if keys[pygame.K_d] and x < 666:
         car = car_right
         x += 1
@@ -115,5 +137,15 @@ while running:
                     pygame.quit()
                     sys.exit(0)
                     running = False
-
     pygame.display.flip()
+
+while start_screen:
+    draw_bg()
+    draw_ss()   
+    ss_buttons()
+
+while running:
+    draw_bg()
+    draw_game()
+    controls()
+    
