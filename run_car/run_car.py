@@ -1,9 +1,12 @@
 import pygame
 from pygame.locals import *
 import sys
-
+from random import randint
 pygame.init()
 pygame.font.init()
+bg_musik = pygame.mixer.Sound("assets/song.mp3")
+pygame.mixer.Sound.play(bg_musik)
+#pygame.mixer.Sound.play(-1)
 
 def load_asset(asset_name):
     return pygame.image.load(asset_name).convert_alpha()
@@ -20,10 +23,30 @@ screen = pygame.display.set_mode((800,height))
 bg_img = load_asset("assets/bg_image.png")
 bg = scale_asset(bg_img, 800, height)
 
+#Ljud 
+#fbg_musik = pygame.mixer.Sound("assets/rolig_musik.mp3")
+
+
 car_straight = load_asset("assets/car_straight.pcx")
 car_straight = scale_asset(car_straight, 55, 110)
 car_left = rotate_asset(car_straight, 30)
 car_right = rotate_asset(car_straight, -30)
+
+npc_cars = load_asset("assets/cars.png")
+#Lista med npc:s
+dump_truck = (0 , 0, 56, 128)
+car_white = (57, 0, 30, 50 )
+car_green = (280, 20, 27, 45)
+car_black = (568, 31, 24, 44)
+bike = (620, 38, 18, 33 )
+car_cyan = (438, 26, 25, 44)
+npc = [dump_truck, car_white, car_green, car_black, bike, car_cyan]
+x_npc = 0 
+y_npc = 100 
+spawn_point = (x_npc, y_npc)
+#Lista med npc bilder startar på index 0 ex npc[0]
+#1024 x 128
+
 
 broken_straight = load_asset("assets/broken_straight.pcx")
 broken_left = rotate_asset(broken_straight, 30)
@@ -59,11 +82,17 @@ font = pygame.font.Font("assets/font.ttf", 30)
 
 def draw_bg():
     global y
+    global speed
     if y >= height:
         y = 0
+    #if score > 1000
+    #    speed = 1.5
     screen.fill((0,0,0))
     screen.blit(bg, (0 , y))
     screen.blit(bg, (0 , -height+y))
+    y += speed
+   
+   
 
 def draw_ss():
     global y
@@ -71,18 +100,23 @@ def draw_ss():
     screen.blit(start, start_game_center)
     screen.blit(quit_button, quit_center)
     screen.blit(car_straight, (x,750))
-    y += speed
     pygame.display.flip()
 
 def draw_game():
     global y
     global score
+    global speed
+    global x_npc
+    x_npc = randint(75,660)
+    global y_npc 
+    global spawn_point #npc bre 
     screen.blit(car, (x,y_car))
     screen.blit(score_pic, (0, 860))
-    y += speed
     score_text = font.render(str(int(score)), True, (255,255,255))
     score += 0.1
+    speed += 0.00001    
     screen.blit(score_text, (140, 860))
+    draw_npc(spawn_point, npc[randint(0,5)])
 
 def ss_buttons():
     global start
@@ -111,6 +145,22 @@ def ss_buttons():
                 sys.exit(0)
                 running = False
 
+
+
+def draw_npc(spawn_point, npc):
+    screen.blit(npc_cars, spawn_point, npc)
+    dump_truck = (0 , 0, 56, 128)
+    car_white = (57, 0, 30, 50 )
+    car_green = (280, 20, 27, 45)
+    car_black = (568, 31, 24, 44)
+    bike = (620, 38, 18, 33 )
+    car_cyan = (438, 26, 25, 44)
+    npc = [dump_truck, car_white, car_green, car_black, bike, car_cyan]
+
+
+
+
+
 def controls():
     global car
     global x
@@ -132,7 +182,7 @@ def controls():
    
     for event in pygame.event.get():      
         if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_0:
+                if event.key == pygame.K_ESCAPE:
                     pygame.display.quit()
                     pygame.quit()
                     sys.exit(0)
@@ -140,12 +190,14 @@ def controls():
     pygame.display.flip()
 
 while start_screen:
+    
     draw_bg()
     draw_ss()   
     ss_buttons()
+  
 
 while running:
     draw_bg()
     draw_game()
     controls()
-    
+
