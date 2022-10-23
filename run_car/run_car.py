@@ -24,8 +24,8 @@ bg_img = load_asset("assets/bg_image.png")
 bg = scale_asset(bg_img, 800, height)
 
 #Ljud 
-bg_musik = pygame.mixer.Sound("assets/song.mp3")
-pygame.mixer.Sound.play(bg_musik)
+#bg_musik = pygame.mixer.Sound("assets/song.mp3")
+#pygame.mixer.Sound.play(bg_musik)
 
 car_straight = load_asset("assets/car_straight.pcx")
 car_straight = scale_asset(car_straight, 55, 110)
@@ -33,6 +33,13 @@ car_left = rotate_asset(car_straight, 30)
 car_right = rotate_asset(car_straight, -30)
 
 npc_cars = load_asset("assets/cars.png")
+big_blue = load_asset("assets/big_blue.png")
+black_car = load_asset("assets/black_car.png")
+blue_car = load_asset("assets/blue_car.png")
+dump_truck = load_asset("assets/dump_truck.png")
+jeep = load_asset("assets/jeep.png")
+MC = load_asset("assets/MC.png")
+white_car = load_asset("assets/white_car.png")
 
 broken_straight = load_asset("assets/broken_straight.pcx")
 broken_left = rotate_asset(broken_straight, 30)
@@ -67,15 +74,16 @@ running = False
 font = pygame.font.Font("assets/font.ttf", 30)
 
 ##### NPC #####
-dump_truck = (0 , 0, 56, 128)
-car_white = (57, 0, 30, 50 )
-car_green = (280, 20, 27, 45)
-car_black = (568, 31, 24, 44)
-bike = (620, 38, 18, 33 )
-car_cyan = (438, 26, 25, 44)
-npc = [dump_truck, car_white, car_green, car_black, bike, car_cyan]
+#dump_truck = (0 , 0, 56, 128)
+#car_white = (57, 0, 30, 50 )
+#car_green = (280, 20, 27, 45)
+#car_black = (568, 31, 24, 44)
+#bike = (620, 38, 18, 33 )
+#car_cyan = (438, 26, 25, 44)
+npc = [dump_truck, white_car, black_car, blue_car, MC, big_blue, jeep]
 x_npc = 0  
-spawn_point = (x_npc, -500)
+spawn_point = (x_npc, 500)
+sprites = pygame.sprite.Group()
 #Lista med npc bilder startar på index 0 ex npc[0]
 #1024 x 128
 
@@ -111,9 +119,9 @@ def draw_game():
     score += 0.1
     speed += 0.00001    
     screen.blit(score_text, (140, 860))
-    draw_npc(spawn_point, npc[randint(0,5)])
+    screen.blit(npc[1], spawn_point)
+    #draw_npc(spawn_point, npc[randint(0,6)])
     
-
 def ss_buttons():
     global start
     global quit_button
@@ -141,15 +149,11 @@ def ss_buttons():
                 sys.exit(0)
                 running = False
 
-def draw_npc(spawn_point, npc):
-    npc.draw(game_surf)
-    game_surf.blit(npc_cars, spawn_point, npc)
+#def draw_npc(spawn_point, npc):
+#    new_npc = NPC(npc)
+#    new_npc.draw_self(spawn_point)
+#    #screen.blit(npc, spawn_point)
    
-
-
-
-
-
 def controls():
     global car
     global x
@@ -177,6 +181,20 @@ def controls():
                     sys.exit(0)
                     running = False
     pygame.display.flip()
+
+#class NPC(pygame.sprite.Sprite):
+    
+#    def __init__(self, image):
+#        self.image = image
+#        bajs = pygame.image.load(image)
+
+#        #self.rect = self.image.get_rect(center=pos)
+    
+#    #bajs = pygame.image.load(image)
+
+#    def draw_self(self, pos):
+#        screen.blit(bajs, pos)
+
 
 while start_screen:  
     draw_bg()
