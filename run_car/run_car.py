@@ -3,7 +3,6 @@ from pygame.locals import *
 import sys
 from random import randint
 
-
 pygame.init()
 pygame.font.init()
 
@@ -66,17 +65,18 @@ font = pygame.font.Font("assets/font.ttf", 30)
 
 ##### NPC #####
 npc = ["assets/dump_truck.png", "assets/white_car.png", "assets/black_car.png", "assets/blue_car.png", "assets/MC.png", "assets/big_blue.png", "assets/jeep.png"]
-x_npc = 0  
-spawn_point = (x_npc, 500)
+x_npc = 0 
+y_npc = 100
 sprites = pygame.sprite.Group()
 #1024 x 128
 
+screen.fill((0,0,0))
 def draw_bg():
     global y
     global speed
     if y >= height:
         y = 0
-    screen.fill((0,0,0))
+    
     screen.blit(bg, (0 , y))
     screen.blit(bg, (0 , -height+y))
     y += speed
@@ -93,19 +93,46 @@ def draw_game():
     global y
     global score
     global speed
+    global y_npc
     global x_npc
-    global y_npc 
     global spawn_point
     screen.blit(car, (x,y_car))
     screen.blit(score_pic, (0, 860))
     score_text = font.render(str(int(score)), True, (255,255,255))
-    x_npc = randint(75,660)
+    spawn_list = [randint(80,180),randint(240,340),randint(400,500),randint(570,670)]
+    spawn_point = spawn_list[randint(0,3)]
     score += 0.1
     speed += 0.00001    
     screen.blit(score_text, (140, 860))
-    new_npc = NPC(npc[2])
-    new_npc.draw_self(spawn_point)
-    #draw_npc(spawn_point, npc[randint(0,6)])
+    if randint(0, 100) == 1:
+        new_npc = NPC(spawn_point)
+        collide_list = pygame.sprite.spritecollide(new_npc, sprites, False)
+        if len(collide_list) > 0:
+            new_npc.kill()
+        else:
+            sprites.add(new_npc)
+            print(sprites)
+    sprites.update()
+    
+
+class NPC(pygame.sprite.Sprite):
+    def __init__(self, spawn_point):
+        super().__init__()
+        self.image = scale_asset(pygame.image.load(npc[randint(0,6)]).convert_alpha(), 55, 110)
+        self.rect = self.image.get_rect()
+        self.dx = spawn_point
+        self.dy = -100
+        self.rect.center = (self.dx, self.dy)
+
+    def update(self):
+        if self.dy > 900:
+            self.kill()
+        self.dy += 1
+        self.rect.center = (self.dx, self.dy)
+        screen.blit(self.image, (self.dx,self.dy))
+
+
+
     
 def ss_buttons():
     global start
@@ -134,11 +161,6 @@ def ss_buttons():
                 sys.exit(0)
                 running = False
 
-#def draw_npc(spawn_point, npc):
-#    new_npc = NPC(npc)
-#    new_npc.draw_self(spawn_point)
-#    #screen.blit(npc, spawn_point)
-   
 def controls():
     global car
     global x
@@ -167,28 +189,13 @@ def controls():
                     running = False
     pygame.display.flip()
 
-class NPC(pygame.sprite.Sprite):
-    def __init__(self, spawn_point):
-        super().__init__()
-        self.image = pygame.image.load(npc[randint(0,6)]).convert_alpha()
-        self.rect = self.image.get_rect()
-        self.rect.center = (spawn_point)
-
-    #def draw_self(self, pos):
-    #    n = pygame.image.load(npc[randint(0,6)]).convert_alpha()
-    #    sprites.add(n)
-    #    sprites.draw(self, screen)
-    #    screen.blit(n, pos)
-
 
 while start_screen:  
     draw_bg()
     draw_ss()   
     ss_buttons()
-  
 
 while running:
     draw_bg()
     draw_game()
     controls()
-
