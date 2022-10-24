@@ -32,15 +32,6 @@ car_straight = scale_asset(car_straight, 55, 110)
 car_left = rotate_asset(car_straight, 30)
 car_right = rotate_asset(car_straight, -30)
 
-npc_cars = load_asset("assets/cars.png")
-big_blue = load_asset("assets/big_blue.png")
-black_car = load_asset("assets/black_car.png")
-blue_car = load_asset("assets/blue_car.png")
-dump_truck = load_asset("assets/dump_truck.png")
-jeep = load_asset("assets/jeep.png")
-MC = load_asset("assets/MC.png")
-white_car = load_asset("assets/white_car.png")
-
 broken_straight = load_asset("assets/broken_straight.pcx")
 broken_left = rotate_asset(broken_straight, 30)
 broken_right = rotate_asset(broken_straight, -30)
@@ -74,17 +65,10 @@ running = False
 font = pygame.font.Font("assets/font.ttf", 30)
 
 ##### NPC #####
-#dump_truck = (0 , 0, 56, 128)
-#car_white = (57, 0, 30, 50 )
-#car_green = (280, 20, 27, 45)
-#car_black = (568, 31, 24, 44)
-#bike = (620, 38, 18, 33 )
-#car_cyan = (438, 26, 25, 44)
-npc = [dump_truck, white_car, black_car, blue_car, MC, big_blue, jeep]
+npc = ["assets/dump_truck.png", "assets/white_car.png", "assets/black_car.png", "assets/blue_car.png", "assets/MC.png", "assets/big_blue.png", "assets/jeep.png"]
 x_npc = 0  
 spawn_point = (x_npc, 500)
 sprites = pygame.sprite.Group()
-#Lista med npc bilder startar på index 0 ex npc[0]
 #1024 x 128
 
 def draw_bg():
@@ -111,7 +95,7 @@ def draw_game():
     global speed
     global x_npc
     global y_npc 
-    global spawn_point #npc bre
+    global spawn_point
     screen.blit(car, (x,y_car))
     screen.blit(score_pic, (0, 860))
     score_text = font.render(str(int(score)), True, (255,255,255))
@@ -119,7 +103,8 @@ def draw_game():
     score += 0.1
     speed += 0.00001    
     screen.blit(score_text, (140, 860))
-    screen.blit(npc[1], spawn_point)
+    new_npc = NPC(npc[2])
+    new_npc.draw_self(spawn_point)
     #draw_npc(spawn_point, npc[randint(0,6)])
     
 def ss_buttons():
@@ -182,18 +167,18 @@ def controls():
                     running = False
     pygame.display.flip()
 
-#class NPC(pygame.sprite.Sprite):
-    
-#    def __init__(self, image):
-#        self.image = image
-#        bajs = pygame.image.load(image)
+class NPC(pygame.sprite.Sprite):
+    def __init__(self, spawn_point):
+        super().__init__()
+        self.image = pygame.image.load(npc[randint(0,6)]).convert_alpha()
+        self.rect = self.image.get_rect()
+        self.rect.center = (spawn_point)
 
-#        #self.rect = self.image.get_rect(center=pos)
-    
-#    #bajs = pygame.image.load(image)
-
-#    def draw_self(self, pos):
-#        screen.blit(bajs, pos)
+    #def draw_self(self, pos):
+    #    n = pygame.image.load(npc[randint(0,6)]).convert_alpha()
+    #    sprites.add(n)
+    #    sprites.draw(self, screen)
+    #    screen.blit(n, pos)
 
 
 while start_screen:  
