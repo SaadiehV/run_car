@@ -61,6 +61,7 @@ quit_button = quit_logo
 start = start_game
 start_screen = True
 running = False
+game_over = False
 font = pygame.font.Font("assets/font.ttf", 30)
 
 ##### NPC #####
@@ -70,33 +71,35 @@ y_npc = 100
 sprites = pygame.sprite.Group()
 #1024 x 128
 
-screen.fill((0,0,0))
 def draw_bg():
     global y
     global speed
-    if y >= height:
-        y = 0
-    
-    screen.blit(bg, (0 , y))
-    screen.blit(bg, (0 , -height+y))
-    y += speed
+    if game_over == False:
+        if y >= height:
+            y = 0    
+        screen.blit(bg, (0 , y))
+        screen.blit(bg, (0 , -height+y))
+        y += speed
    
 def draw_ss():
     global y
+    new_player = Player()
     screen.blit(logo, logo_center)
     screen.blit(start, start_game_center)
     screen.blit(quit_button, quit_center)
-    screen.blit(car_straight, (x,750))
+    new_player.update()
     pygame.display.flip()
 
 def draw_game():
     global y
     global score
     global speed
-    global y_npc
-    global x_npc
     global spawn_point
-    screen.blit(car, (x,y_car))
+    global start_screen
+    global running
+    global game_over
+    new_player = Player()
+    new_player.update()
     screen.blit(score_pic, (0, 860))
     score_text = font.render(str(int(score)), True, (255,255,255))
     spawn_list = [randint(80,180),randint(240,340),randint(400,500),randint(570,670)]
@@ -104,15 +107,20 @@ def draw_game():
     score += 0.1
     speed += 0.00001    
     screen.blit(score_text, (140, 860))
-    if randint(0, 100) == 1:
-        new_npc = NPC(spawn_point)
-        collide_list = pygame.sprite.spritecollide(new_npc, sprites, False)
-        if len(collide_list) > 0:
-            new_npc.kill()
-        else:
-            sprites.add(new_npc)
-            print(sprites)
+    new_npc = NPC(spawn_point)
+    if game_over == False:
+        if randint(0, 100) == 1:
+            collide_list = pygame.sprite.spritecollide(new_npc, sprites, False)
+            if len(collide_list) > 0:
+                new_npc.kill()
+            else:
+                sprites.add(new_npc)
+                print(sprites)
+        if len(pygame.sprite.spritecollide(new_player, sprites, False)) > 0:
+            print("crash")
+            game_over = True
     sprites.update()
+    pygame.display.flip()
     
 
 class NPC(pygame.sprite.Sprite):
@@ -131,7 +139,18 @@ class NPC(pygame.sprite.Sprite):
         self.rect.center = (self.dx, self.dy)
         screen.blit(self.image, (self.dx,self.dy))
 
+class Player(pygame.sprite.Sprite):
+    def __init__(self):
+        super().__init__()
+        self.image = car
+        self.rect = self.image.get_rect()
+        self.dx = x
+        self.dy = y_car
+        self.rect.center = (self.dx, self.dy)
 
+    def update(self):
+        self.rect.center = (self.dx, self.dy)
+        screen.blit(self.image, (self.dx,self.dy))
 
     
 def ss_buttons():
@@ -190,7 +209,7 @@ def controls():
     pygame.display.flip()
 
 
-while start_screen:  
+while start_screen:
     draw_bg()
     draw_ss()   
     ss_buttons()
